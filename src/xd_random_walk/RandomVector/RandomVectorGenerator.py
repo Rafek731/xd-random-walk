@@ -1,5 +1,4 @@
 from typing import Any
-
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -13,10 +12,8 @@ class RandomVectorGenerator(ABC):
     """num random vectors generate"""
     _generator: np.random.Generator
     """Generator for number generation"""
-    _max_step: float
-    """Max number shown in each of random vector's slot"""
     
-    def __init__(self, dims: int, num_samples: int = 1,  max_step: float = 1.0, generator: np.random.Generator|None = None) -> None:
+    def __init__(self, dims: int, num_samples: int = 1, generator: np.random.Generator|None = None) -> None:
         """Class that generates random vectors of specified length
 
         Args:
@@ -27,29 +24,34 @@ class RandomVectorGenerator(ABC):
         self._dims = dims
         self._num_samples = num_samples
         self._generator = np.random.default_rng() if generator is None else generator
-        self._max_step = max_step
 
-    @abstractmethod
+    def generate(self) -> np.ndarray:
+        cols = self._generator.integers(0, self._dims, dtype=int)
+        vals = self._generate_values()
+
+        random_vectors = np.zeros((self._num_samples, self._dims), dtype=int)
+        random_vectors[np.arange(self._num_samples), cols] = vals
+
+        return random_vectors
+
     def __next__(self) -> np.ndarray:
-        pass
+        return self.generate()
 
-    @abstractmethod
     def __call__(self) -> np.ndarray:
+        return self.generate()
+    
+    @abstractmethod
+    def _generate_values(self) -> np.ndarray:
         pass
-        
     
 class UniformRVG(RandomVectorGenerator):
-    def step(self) -> np.ndarray:
-        return self._generator.uniform(low=-self._max_step, high=self._max_step, size=(self._num_samples, self._dims))
-    def __next__(self) -> np.ndarray:
-        return self.step()
-    
-    def __call__(self) -> np.ndarray:
-        return self.step()
+    def _generate_values(self) -> np.ndarray:
+        return self._generator.uniform(-1,1, self._num_samples)
     
 class DiscreteRVG(RandomVectorGenerator):
-    def __next__(self) -> np.ndarray:
-        return self._generator.choice([-1,1], size=(self._num_samples, self._dims), replace=True)
-    
-    def __call__(self) -> np.ndarray:
-        return self._generator.choice([-1,1], size=(self._num_samples, self._dims), replace=True)
+    def _generate_values(self) -> np.ndarray:
+        return self._generator.choice([-1, 1], size=self._num_samples, replace=True)
+
+class NormalRVG(RandomVectorGenerator):
+    def _generate_values(self) -> np.ndarray[tuple[Any, ...], np.dtype[Any]]:
+        return self._generator.normal(0, 1/3, size=self._num_samples)
