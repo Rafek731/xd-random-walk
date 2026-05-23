@@ -1,7 +1,7 @@
 from .BasePlotManager import BaseMainPlotManager
 from typing import Literal
-from collections import deque
-from matplotlib.collections import PathCollection
+from matplotlib.collections import LineCollection
+import numpy as np
 
 
 class MainPlotManager2d(BaseMainPlotManager):
@@ -20,12 +20,16 @@ class MainPlotManager2d(BaseMainPlotManager):
         self._axes.axvline(x=0, color="black", linewidth=1.5, zorder=2)
 
         if show_taken_path:
+            self._history = np.zeros((num_samples, tail_length, 2), dtype=self._data_type)
+            self._history_idx = 0
+            self._history_filled = False
             self._tail_length = tail_length
-            self._history = [deque(maxlen=tail_length) for _ in range(num_samples)]
-            self._lines = [
-                self._axes.plot([], [], color=self._colors[i], alpha=0.5)[0]
-                for i in range(num_samples)
-            ]
+            self._lines= LineCollection(
+                [], 
+                colors=self._colors, 
+                alpha=0.5
+            )
+            self._axes.add_collection(self._lines)
         else:
             self._tail_length = None
             self._history = None
@@ -36,18 +40,28 @@ class MainPlotManager2d(BaseMainPlotManager):
         )
         self._plot = self._axes.plot()
 
-    def _update_plot(self) -> tuple[PathCollection]:
+    def _update_plot(self) -> tuple:
         self._scatter.set_offsets(self._points)
 
         if self._history is not None:
-            for i in range(len(self._points)):
-                self._history[i].append(self._points[i].copy())
+            self._history[:, self._history_idx, :] = self._points
+            self._history_idx += 1
 
-                if len(self._history[i]) > 0 and self._lines is not None:
-                    x_data, y_data = zip(*self._history[i])
-                    self._lines[i].set_data(x_data, y_data)
+            if self._history_idx >= self._tail_length: # type: ignore
+                self._history_idx = 0
+                self._history_filled = True
 
-        self._axes.set_xlim(self._ranges[0, 0], self._ranges[0, 1])  # type: ignore
-        self._axes.set_ylim(self._ranges[1, 0], self._ranges[1, 1])  # type: ignore
+            if self._history_filled:
+                segments = np.roll(self._history, -self._history_idx, axis=1)
+            else:
+                segments = self._history[:, :self._history_idx, :]
+            self._lines.set_segments(segments)
 
-        return (self._scatter,)
+        self._axes.set_xlim(self._ranges[0, 0], self._ranges[0, 1])
+        self._axes.set_ylim(self._ranges[1, 0], self._ranges[1, 1])
+
+        artists = [self._scatter]
+        if self._history is not None:
+            artists.append(self._lines)
+            
+        return (self._scatter, self._lines) if self._history is not None else self._scatter,
