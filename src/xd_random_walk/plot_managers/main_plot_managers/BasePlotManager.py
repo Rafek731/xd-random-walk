@@ -41,9 +41,7 @@ class BaseMainPlotManager(ABC):
     _points: np.ndarray
     _colors: list[ColorType]
     _ranges: np.ndarray
-    _current_avg_distance: float
     _avg_distance: float
-    _avg_weight: int
     _data_type: type
 
     def __init__(
@@ -88,13 +86,7 @@ class BaseMainPlotManager(ABC):
         self._points += next(self._rvg)
 
     def _update_avgs(self) -> None:
-        distances = np.sum(self._points**2, axis=1) ** 0.5
-        self._current_avg_distance = np.average(distances)
-        self._avg_distance = np.average(
-            [self._avg_distance, self._current_avg_distance],
-            weights=[self._avg_weight, len(distances)],
-        )
-        self._avg_weight += len(self._points)
+        self._avg_distance = np.average(np.sum(self._points**2, axis=1) ** 0.5)
 
     def _update_ranges(self, padding_percent: float = 5) -> None:
         maxes = np.max(self._points, axis=0)

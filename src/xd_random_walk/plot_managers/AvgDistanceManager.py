@@ -38,8 +38,8 @@ class AvgDistanceManager:
 
         self._a = float(np.sum(np_avgs_points * (np_regr_points ** 0.5)) / np.sum(np_regr_points))
     
-    def update_data(self, new_current_avg: float, new_global_avg: float):
-        self._averages.append(new_current_avg)
+    def update_data(self, new_avg: float):
+        self._averages.append(new_avg)
         self._step += 1
         self._fit_a()
     
@@ -52,11 +52,9 @@ class AvgDistanceManager:
         
         if self._step > 0:
             self._ax.set_xlim(0, max(10, self._step * 1.05))
-            
             max_y = max(max(self._averages), max(theoretical_y), 1)
             self._ax.set_ylim(0, max_y * 1.1)
 
-        # Return both lines for FuncAnimation
         return self._avg_line, self._regression_line
 
     def update(self):

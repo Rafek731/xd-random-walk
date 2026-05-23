@@ -34,10 +34,22 @@ class WalkAnimator:
             fig=self.main_manager._fig,
             func=self.main_manager.update,
             frames=None,
-            interval=50,
+            interval=self.interval,
             blit=False,
             cache_frame_data=False,
         )
+        self.avg_manager = AvgDistanceManager()
+        self.avg_anim = anim.FuncAnimation(
+            fig=self.avg_manager._fig,
+            func=self._update_avg_window,
+            frames=None,
+            interval=self.interval,
+            blit=False,
+            cache_frame_data=False
+        )
+    def _update_avg_window(self, frame):
+        self.avg_manager.update_data(self.main_manager.avg_distance)
+        return self.avg_manager.update()
 
     def __enter__(self):
         pass
