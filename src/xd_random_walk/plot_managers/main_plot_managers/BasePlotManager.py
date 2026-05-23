@@ -66,7 +66,7 @@ class BaseMainPlotManager(ABC):
             case _:
                 raise ValueError("This generator type is not allowed")
 
-        self._fig = plt.figure('Points visualization')
+        self._fig = plt.figure("Points visualization")
         self._points = np.zeros((num_samples, dims), dtype=self._data_type)
         self._ranges = np.array([[-1, 1] for _ in range(dims)], dtype=self._data_type)
         self._colors = get_colors(num_samples)
