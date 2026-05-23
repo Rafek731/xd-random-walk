@@ -36,7 +36,7 @@ class AvgDistanceManager:
         self._regression_line = self._ax.plot(
             [],
             [],
-            label=f"{self._a}*sqrt(N) (sqrt regression)",
+            label=f"{self._a:.5f}*sqrt(N) (sqrt regression)",
             color="red",
             linestyle="--",
         )[0]
@@ -66,7 +66,7 @@ class AvgDistanceManager:
         theoretical_y = [self._a * (n**0.5) for n in steps]
         self._regression_line.set_data(steps, theoretical_y)
 
-        self._regression_line.set_label(f"{self._a:.3f} * sqrt(N)")
+        self._regression_line.set_label(f"{self._a:.5f} * sqrt(N) (sqrt regression)")
         self._ax.legend(loc="upper left")
 
         if self._step > 0:

@@ -17,6 +17,6 @@ def get_plot_manager(
     if dims == 2:
         return MainPlotManager2d(num_samples, generator_type, show_path, tail_length)
     if dims == 3:
-        return MainPlotManager3d()
+        return MainPlotManager3d(num_samples, generator_type, show_path, tail_length)
     else:
-        return MainPlotManagerxd(dims, num_samples)
+        return MainPlotManagerxd(dims, num_snum_samples, generator_type)

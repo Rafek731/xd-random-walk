@@ -7,10 +7,10 @@ import numpy as np
 class MainPlotManager2d(BaseMainPlotManager):
     def __init__(
         self,
-        num_samples: int = 1,
+        num_samples: int = 500,
         generator_type: Literal["discrete", "uniform", "normal"] = "discrete",
         show_taken_path: bool = False,
-        tail_length: int = 5000,
+        tail_length: int = 100,
     ) -> None:
         super().__init__(dims=2, num_samples=num_samples, generator_type=generator_type)
 
