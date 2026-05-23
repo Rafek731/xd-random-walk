@@ -3,7 +3,7 @@ import matplotlib.animation as anim
 from dataclasses import dataclass, field
 from typing import Literal
 
-from xd_random_walk.plot_managers import get_plot_manager, BaseMainPlotManager
+from xd_random_walk.plot_managers import get_plot_manager, BaseMainPlotManager, AvgDistanceManager
 
 
 @dataclass(slots=True)
@@ -18,6 +18,9 @@ class WalkAnimator:
     main_anim: anim.FuncAnimation = field(init=False)
     main_manager: BaseMainPlotManager = field(init=False)
 
+    avg_anim: anim.FuncAnimation  = field(init=False)
+    avg_manager: AvgDistanceManager = field(init=False)
+
     def __post_init__(self):
         self.main_manager = get_plot_manager(
             self.dims,
@@ -26,6 +29,7 @@ class WalkAnimator:
             self.show_path,
             self.tail_length,
         )
+
         self.main_anim = anim.FuncAnimation(
             fig=self.main_manager._fig,
             func=self.main_manager.update,
