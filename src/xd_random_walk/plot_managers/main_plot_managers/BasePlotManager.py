@@ -1,13 +1,12 @@
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
-from matplotlib.collections import PathCollection
-import matplotlib.pyplot as plt
-from matplotlib.typing import ColorType
+from abc import ABC, abstractmethod
+from typing import Literal
 
 import numpy as np
-
-from typing import Literal
-from abc import ABC, abstractmethod
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from matplotlib.artist import Artist
+from matplotlib.typing import ColorType
 
 from xd_random_walk.RandomVector import (
     DiscreteRVG,
@@ -19,6 +18,8 @@ from ..colors import get_colors
 
 
 class BaseMainPlotManager(ABC):
+    """Abstract base class handling state and logic for N-dimensional spatial random walks."""
+
     __slots__ = [
         "_dims",
         "_num_samples",
@@ -33,16 +34,6 @@ class BaseMainPlotManager(ABC):
         "_data_type",
         "_colors",
     ]
-    _dims: int
-    _num_samples: int
-    _rvg: RandomVectorGenerator
-    _fig: Figure
-    _axes: Axes | list[Axes] | None
-    _points: np.ndarray
-    _colors: list[ColorType]
-    _ranges: np.ndarray
-    _avg_distance: float
-    _data_type: type
 
     def __init__(
         self,
@@ -53,42 +44,45 @@ class BaseMainPlotManager(ABC):
         self._dims = dims
         self._num_samples = num_samples
 
-        match generator_type:
-            case "discrete":
-                self._rvg = DiscreteRVG(dims, num_samples)
-                self._data_type = int
-            case "uniform":
-                self._rvg = UniformRVG(dims, num_samples)
-                self._data_type = float
-            case "normal":
-                self._rvg = NormalRVG(dims, num_samples)
-                self._data_type = float
-            case _:
-                raise ValueError("This generator type is not allowed")
+        if generator_type == "discrete":
+            self._rvg: RandomVectorGenerator = DiscreteRVG(dims, num_samples)
+            self._data_type: type = int
+        elif generator_type == "uniform":
+            self._rvg = UniformRVG(dims, num_samples)
+            self._data_type = float
+        elif generator_type == "normal":
+            self._rvg = NormalRVG(dims, num_samples)
+            self._data_type = float
+        else:
+            raise ValueError(f"Generator type '{generator_type}' is not supported.")
 
-        self._fig = plt.figure("Points visualization")
-        self._points = np.zeros((num_samples, dims), dtype=self._data_type)
-        self._ranges = np.array([[-1, 1] for _ in range(dims)], dtype=self._data_type)
-        self._colors = get_colors(num_samples)
-        self._current_avg_distance = 0
-        self._avg_distance = 0
-        self._avg_weight = 0
+        self._fig: Figure = plt.figure("Points visualization")
+        self._points: np.ndarray = np.zeros((num_samples, dims), dtype=self._data_type)
+        self._ranges: np.ndarray = np.array([[-1, 1] for _ in range(dims)], dtype=float)
+        self._colors: list[ColorType] = get_colors(num_samples)
 
-        self._axes = None
+        self._current_avg_distance: float = 0.0
+        self._avg_distance: float = 0.0
+        self._avg_weight: float = 0.0
+        self._axes: Axes | list[Axes] | None = None
 
-    def update(self, frame=None):
+    def update(self, frame: int | None = None) -> tuple[Artist, ...]:
+        """Calculates logic and triggers the visual refresh."""
         self._move_points()
         self._update_ranges()
         self._update_avgs()
         return self._update_plot()
 
     def _move_points(self) -> None:
+        """Applies the next vector generation to current point positions."""
         self._points += next(self._rvg)
 
     def _update_avgs(self) -> None:
-        self._avg_distance = np.average(np.sum(self._points**2, axis=1) ** 0.5)
+        """Calculates the mean absolute distance of all particles from the origin."""
+        self._avg_distance = float(np.average(np.sum(self._points**2, axis=1) ** 0.5))
 
-    def _update_ranges(self, padding_percent: float = 5) -> None:
+    def _update_ranges(self, padding_percent: float = 5.0) -> None:
+        """Expands the spatial ranges to ensure all points remain in camera view."""
         maxes = np.max(self._points, axis=0)
         mins = np.min(self._points, axis=0)
 
@@ -100,7 +94,8 @@ class BaseMainPlotManager(ABC):
         self._ranges[:, 1] = np.maximum(self._ranges[:, 1], maxes + paddings)
 
     @abstractmethod
-    def _update_plot(self) -> tuple[PathCollection]:
+    def _update_plot(self) -> tuple[Artist, ...]:
+        """Draws the points and returns a tuple of Matplotlib Artists updated."""
         pass
 
     @property

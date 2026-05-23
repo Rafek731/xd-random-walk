@@ -1,39 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
-import numpy as np
+from matplotlib.lines import Line2D
 
 
 class AvgDistanceManager:
-    _averages: list[float]
-    _step: int
+    """Manages the 2D plot tracking the average distance of walkers from the origin over time.
 
-    _fig: Figure
-    _ax: Axes
+    Uses an O(1) memory algorithm for continuous mathematical regression.
+    """
 
-    _a: float
-    _sum_numerator: float
-    _sum_denominator: float
+    __slots__ = [
+        "_averages",
+        "_step",
+        "_fig",
+        "_ax",
+        "_a",
+        "_sum_numerator",
+        "_sum_denominator",
+        "_avg_line",
+        "_regression_line",
+    ]
 
     def __init__(self) -> None:
-        self._fig = plt.figure("Avarage distance")
-        self._ax = self._fig.add_subplot(111)
+        self._fig: Figure = plt.figure("Average distance")
+        self._ax: Axes = self._fig.add_subplot(111)
 
         self._ax.set_xlabel("N (steps)")
         self._ax.set_ylabel("Distance from Origin")
         self._ax.grid(True, linestyle="--", alpha=0.5)
 
-        self._averages = []
-        self._step = 0
+        self._averages: list[float] = []
+        self._step: int = 0
 
-        self._sum_numerator = 0.0
-        self._sum_denominator = 0.0
-        self._a = 1.0
+        self._sum_numerator: float = 0.0
+        self._sum_denominator: float = 0.0
+        self._a: float = 1.0
 
-        self._avg_line = self._ax.plot(
+        self._avg_line: Line2D = self._ax.plot(
             [], [], label="Current avg distance", color="blue"
         )[0]
-        self._regression_line = self._ax.plot(
+
+        self._regression_line: Line2D = self._ax.plot(
             [],
             [],
             label=f"{self._a:.5f}*sqrt(N) (sqrt regression)",
@@ -43,7 +52,8 @@ class AvgDistanceManager:
 
         self._ax.legend()
 
-    def _fit_a(self, current_avg: float):
+    def _fit_a(self, current_avg: float) -> None:
+        """Updates the least-squares regression coefficient dynamically."""
         if self._step < 2:
             self._a = 1.0
             return
@@ -54,12 +64,14 @@ class AvgDistanceManager:
         if self._step > 1:
             self._a = self._sum_numerator / self._sum_denominator
 
-    def update_data(self, new_avg: float):
+    def update_data(self, new_avg: float) -> None:
+        """Pushes a new data point to the history and calculates the new regression."""
         self._averages.append(new_avg)
         self._step += 1
         self._fit_a(new_avg)
 
-    def _update_plot(self):
+    def _update_plot(self) -> tuple[Line2D, Line2D]:
+        """Redraws the theoretical and empirical lines onto the axes."""
         steps = np.arange(self._step)
         self._avg_line.set_data(steps, self._averages)
 
@@ -76,5 +88,6 @@ class AvgDistanceManager:
 
         return self._avg_line, self._regression_line
 
-    def update(self):
+    def update(self) -> tuple[Line2D, Line2D]:
+        """Primary update loop for FuncAnimation."""
         return self._update_plot()

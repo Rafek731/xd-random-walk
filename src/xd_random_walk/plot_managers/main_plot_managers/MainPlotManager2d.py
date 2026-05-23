@@ -1,10 +1,14 @@
-from .BasePlotManager import BaseMainPlotManager
 from typing import Literal
-from matplotlib.collections import LineCollection
 import numpy as np
+from matplotlib.collections import LineCollection
+from matplotlib.artist import Artist
+
+from .BasePlotManager import BaseMainPlotManager
 
 
 class MainPlotManager2d(BaseMainPlotManager):
+    """Manages the 2-dimensional scatter plot and high-performance LineCollection traces."""
+
     def __init__(
         self,
         num_samples: int = 500,
@@ -26,6 +30,7 @@ class MainPlotManager2d(BaseMainPlotManager):
             self._history_idx = 0
             self._history_filled = False
             self._tail_length = tail_length
+
             self._lines = LineCollection([], colors=self._colors, alpha=0.5)
             self._axes.add_collection(self._lines)
         else:
@@ -36,16 +41,17 @@ class MainPlotManager2d(BaseMainPlotManager):
         self._scatter = self._axes.scatter(
             self._points[:, 0], self._points[:, 1], c=self._colors, zorder=3, s=18
         )
-        self._plot = self._axes.plot()
 
-    def _update_plot(self) -> tuple:
+    def _update_plot(self) -> tuple[Artist, ...]:
         self._scatter.set_offsets(self._points)
 
-        if self._history is not None:
+        artists: list[Artist] = [self._scatter]
+
+        if self._history is not None and self._lines is not None:
             self._history[:, self._history_idx, :] = self._points
             self._history_idx += 1
 
-            if self._history_idx >= self._tail_length:  # type: ignore
+            if self._history_idx >= self._tail_length:
                 self._history_idx = 0
                 self._history_filled = True
 
@@ -53,17 +59,11 @@ class MainPlotManager2d(BaseMainPlotManager):
                 segments = np.roll(self._history, -self._history_idx, axis=1)
             else:
                 segments = self._history[:, : self._history_idx, :]
+
             self._lines.set_segments(segments)
+            artists.append(self._lines)
 
         self._axes.set_xlim(self._ranges[0, 0], self._ranges[0, 1])
         self._axes.set_ylim(self._ranges[1, 0], self._ranges[1, 1])
 
-        artists = [self._scatter]
-        if self._history is not None:
-            artists.append(self._lines)
-
-        return (
-            (self._scatter, self._lines)
-            if self._history is not None
-            else self._scatter,
-        )
+        return tuple(artists)

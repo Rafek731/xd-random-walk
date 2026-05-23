@@ -2,14 +2,22 @@ import argparse
 
 
 def parse_cli() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+    """Parses command-line arguments for the XD random walk simulation.
+
+    Returns:
+        argparse.Namespace: The parsed command-line arguments containing parameters
+        like dimensions, number of samples, distribution type, and plot settings.
+    """
+    parser = argparse.ArgumentParser(
+        description="A high-performance, multi-dimensional random walk simulator."
+    )
     parser.add_argument(
         "-d",
         "--dimensions",
         type=int,
         default=2,
         dest="dims",
-        help="Determine how many dimensions use to perform simulation.",
+        help="Number of dimensions for the simulation (e.g., 1, 2, 3, or n-dimensional).",
     )
     parser.add_argument(
         "-n",
@@ -17,7 +25,7 @@ def parse_cli() -> argparse.Namespace:
         type=int,
         default=500,
         dest="num_samples",
-        help="Specify how many points to use in simulation.",
+        help="Number of independent points/particles to simulate.",
     )
     parser.add_argument(
         "-p",
@@ -25,7 +33,8 @@ def parse_cli() -> argparse.Namespace:
         action="store_true",
         default=False,
         dest="show_path",
-        help="Whether to show the path that point took or not (defaults to False), works only in 2d and 3d mode. (If you don't show path then you can show grater number of points on the plot, I highly recommend showing path only for up to 10 points then it looses sense).",
+        help="Display the trailing paths of points (supported in 2D and 3D). "
+        "Warning: Heavy performance impact for >10 points.",
     )
     parser.add_argument(
         "-t",
@@ -33,7 +42,7 @@ def parse_cli() -> argparse.Namespace:
         type=int,
         default=100,
         dest="tail",
-        help="How many steps back of the point's path to show. Defaults to 100.",
+        help="Number of historical steps to show in the path trail. Defaults to 100.",
     )
     parser.add_argument(
         "-D",
@@ -41,7 +50,14 @@ def parse_cli() -> argparse.Namespace:
         choices=["discrete", "uniform", "normal"],
         default="discrete",
         dest="distribution",
-        help="Which distribution to choose to generate steps. Possible choices are 'discrete', 'uniform' and 'normal'."
+        help="The probability distribution used to generate random steps.",
     )
-    parser.add_argument("-i", "--interval", type=int, default=100, dest="interval")
+    parser.add_argument(
+        "-i",
+        "--interval",
+        type=int,
+        default=100,
+        dest="interval",
+        help="Animation refresh interval in milliseconds.",
+    )
     return parser.parse_args()
