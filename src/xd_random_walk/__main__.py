@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 from xd_random_walk.cli import parse_cli
-import matplotlib.pyplot as plt
 from xd_random_walk.animation import WalkAnimator
 
 
 def main() -> int:
     args = parse_cli()
-    animator = WalkAnimator(args.dims, num_samples=args.num_samples)
+    animator = WalkAnimator(
+        args.dims, args.num_samples, args.distribution, args.show_path, args.tail, args.interval
+    )
     animator.animate()
     return 0
 
