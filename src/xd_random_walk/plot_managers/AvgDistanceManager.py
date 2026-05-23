@@ -28,12 +28,17 @@ class AvgDistanceManager:
 
         self._sum_numerator = 0.0
         self._sum_denominator = 0.0
+        self._a = 1.0
 
-        self._avg_line = self._ax.plot([], [], label="Current Step Avg", color="blue")[
-            0
-        ]
+        self._avg_line = self._ax.plot(
+            [], [], label="Current avg distance", color="blue"
+        )[0]
         self._regression_line = self._ax.plot(
-            [], [], label="a*sqrt(N)", color="red", linestyle="--"
+            [],
+            [],
+            label=f"{self._a}*sqrt(N) (sqrt regression)",
+            color="red",
+            linestyle="--",
         )[0]
 
         self._ax.legend()
@@ -43,7 +48,7 @@ class AvgDistanceManager:
             self._a = 1.0
             return
 
-        self._sum_numerator += current_avg * (self._step ** 0.5)
+        self._sum_numerator += current_avg * (self._step**0.5)
         self._sum_denominator += self._step
 
         if self._step > 1:
@@ -55,11 +60,14 @@ class AvgDistanceManager:
         self._fit_a(new_avg)
 
     def _update_plot(self):
-        steps = np.arange(1, self._step + 1)
+        steps = np.arange(self._step)
         self._avg_line.set_data(steps, self._averages)
 
         theoretical_y = [self._a * (n**0.5) for n in steps]
         self._regression_line.set_data(steps, theoretical_y)
+
+        self._regression_line.set_label(f"{self._a:.3f} * sqrt(N)")
+        self._ax.legend(loc="upper left")
 
         if self._step > 0:
             self._ax.set_xlim(0, max(10, self._step * 1.05))

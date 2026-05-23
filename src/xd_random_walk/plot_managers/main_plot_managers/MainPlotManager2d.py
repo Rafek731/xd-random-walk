@@ -20,15 +20,13 @@ class MainPlotManager2d(BaseMainPlotManager):
         self._axes.axvline(x=0, color="black", linewidth=1.5, zorder=2)
 
         if show_taken_path:
-            self._history = np.zeros((num_samples, tail_length, 2), dtype=self._data_type)
+            self._history = np.zeros(
+                (num_samples, tail_length, 2), dtype=self._data_type
+            )
             self._history_idx = 0
             self._history_filled = False
             self._tail_length = tail_length
-            self._lines= LineCollection(
-                [], 
-                colors=self._colors, 
-                alpha=0.5
-            )
+            self._lines = LineCollection([], colors=self._colors, alpha=0.5)
             self._axes.add_collection(self._lines)
         else:
             self._tail_length = None
@@ -47,14 +45,14 @@ class MainPlotManager2d(BaseMainPlotManager):
             self._history[:, self._history_idx, :] = self._points
             self._history_idx += 1
 
-            if self._history_idx >= self._tail_length: # type: ignore
+            if self._history_idx >= self._tail_length:  # type: ignore
                 self._history_idx = 0
                 self._history_filled = True
 
             if self._history_filled:
                 segments = np.roll(self._history, -self._history_idx, axis=1)
             else:
-                segments = self._history[:, :self._history_idx, :]
+                segments = self._history[:, : self._history_idx, :]
             self._lines.set_segments(segments)
 
         self._axes.set_xlim(self._ranges[0, 0], self._ranges[0, 1])
@@ -63,5 +61,9 @@ class MainPlotManager2d(BaseMainPlotManager):
         artists = [self._scatter]
         if self._history is not None:
             artists.append(self._lines)
-            
-        return (self._scatter, self._lines) if self._history is not None else self._scatter,
+
+        return (
+            (self._scatter, self._lines)
+            if self._history is not None
+            else self._scatter,
+        )
