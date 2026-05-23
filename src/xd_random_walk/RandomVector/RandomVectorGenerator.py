@@ -36,7 +36,7 @@ class RandomVectorGenerator(ABC):
         self._type = None
 
     def generate(self) -> np.ndarray:
-        cols = self._generator.integers(0, self._dims)
+        cols = self._generator.integers(0, self._dims, size=self._num_samples)
         vals = self._generate_values()
 
         random_vectors = np.zeros((self._num_samples, self._dims), dtype=self._type)
