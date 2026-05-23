@@ -42,11 +42,5 @@ def parse_cli() -> argparse.Namespace:
         default="discrete",
         dest="distribution",
     )
-    parser.add_argument(
-        "--interval",
-        "-i",
-        type=int,
-        default=50,
-        dest='interval'
-    )
+    parser.add_argument("--interval", "-i", type=int, default=50, dest="interval")
     return parser.parse_args()
