@@ -15,7 +15,7 @@ from xd_random_walk.RandomVector import (
     NormalRVG,
     RandomVectorGenerator,
 )
-from .colors import get_colors
+from ..colors import get_colors
 
 
 class BaseMainPlotManager(ABC):
