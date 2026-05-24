@@ -98,7 +98,7 @@ where $\mathbf{y}, \mathbf{\hat{y}}$ are n-dimensional vectors and $y_i = f(x_i)
 Our function $f$ is defined as $f(x)=a\sqrt{x}$ and we remember that $y_i = f(x_i)$, then what we've got is following:
 
 $$
-\begin{flalign}
+\begin{align*}
 &\frac{\text d}{\text{d}a}\text{MSE}(\mathbf{\hat{y}}, \mathbf{y})=0\\
 &\frac{\text d}{\text{d}a}\frac{1}{n}\sum_{i=1}^n(\hat{y_i} - y_i)^2 =0\\
 &\sum_{i=1}^n\frac{\text d}{\text{d}a}(\hat{y_i} - f(x_i))^2=0\\
@@ -107,7 +107,7 @@ $$
 &\sum_{i=1}^n(\hat{y_i}\sqrt{x_i} - ax_i) = 0\\
 &\sum_{i=1}^n(\hat{y_i}\sqrt{x_i})=a\sum_{i=1}^nx_i\\
 &a = \frac{\displaystyle\sum_{i=1}^n(\hat{y_i}\sqrt{x_i})}{\displaystyle\sum_{i=1}^nx_i}
-\end{flalign}
+\end{align*}
 $$
 
 We got such an $a$ that the **MSE** has minimum or stationary point. Algorithm inside the project allows to calculate $a$ in $O(1)$ time every step.
