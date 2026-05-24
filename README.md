@@ -86,8 +86,6 @@ $$d \propto \sqrt{N}$$
 --- 
 The secondary window in this simulation plots the exact distances of all particles and calculates the theoretical coefficient $a$ in real-time. Depending on whether you chose `discrete`, `uniform`, or `normal` coefficients converge to different values:
 
-* 
-
 General idea of **regression** is that we take some function $f$ and measure the difference between our model and desired output. This gives us feedback how should we change our function $f$ to get better results.
 
 To measure how good is our model we use ***error function***. This is a function that takes output from our model $y_i$ as well as empirical value $\hat{y_i}$ and spits out some number which encodes our model performance. Our goal is to tweak $f$'s parameters in such a way that this error is as low as possible. In this project **MSE** (mean sqared error) is used as an error function. MSE is defined as following:
