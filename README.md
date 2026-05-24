@@ -80,6 +80,34 @@ walk -d 15 -n 100 -D normal
 In a standard, unbiased random walk, the expected *average position* is always $0$ because positive and negative steps cancel each other out. However, if you measure the *absolute physical distance* (Root Mean Square or Mean Absolute Distance) of the particles from the origin, the variance grows linearly with the number of steps ($N$). 
 
 Taking the square root of that variance reveals the physical distance law:
+
 $$d \propto \sqrt{N}$$
 
-The secondary window in this simulation plots the exact distances of all particles and calculates the theoretical coefficient $a$ in real-time, depending on whether you chose discrete, uniform, or normal steps!
+--- 
+The secondary window in this simulation plots the exact distances of all particles and calculates the theoretical coefficient $a$ in real-time. Depending on whether you chose `discrete`, `uniform`, or `normal` coefficients converge to different values:
+
+* 
+
+General idea of **regression** is that we take some function $f$ and measure the difference between our model and desired output. This gives us feedback how should we change our function $f$ to get better results.
+
+To measure how good is our model we use ***error function***. This is a function that takes output from our model $y_i$ as well as empirical value $\hat{y_i}$ and spits out some number which encodes our model performance. Our goal is to tweak $f$'s parameters in such a way that this error is as low as possible. In this project **MSE** (mean sqared error) is used as an error function. MSE is defined as following:
+
+$$\text{MSE}(\mathbf{\hat{y}}, \mathbf{y})=\frac{1}{n}\sum_{i=1}^n(\hat{y_i} - y_i)^2$$
+
+where $\mathbf{y}, \mathbf{\hat{y}}$ are n-dimensional vectors and $y_i = f(x_i)$ we take derivative of **MSE** and set it equal to 0. Since we cannot have highes value of error (we can always perform worse) given solution of the equation gives us either stationary point or local minimum (as we will se in the project it is actually a local minimum).
+Our function $f$ is defined as $f(x)=a\sqrt{x}$ and we remember that $y_i = f(x_i)$, then what we've got is following:
+
+$$
+\begin{flalign}
+&\frac{\text d}{\text{d}a}\text{MSE}(\mathbf{\hat{y}}, \mathbf{y})=0\\
+&\frac{\text d}{\text{d}a}\frac{1}{n}\sum_{i=1}^n(\hat{y_i} - y_i)^2 =0\\
+&\sum_{i=1}^n\frac{\text d}{\text{d}a}(\hat{y_i} - f(x_i))^2=0\\
+&\sum_{i=1}^n\frac{\text d}{\text{d}a}(\hat{y_i} - a\sqrt{x_i})^2=0\\
+&\sum_{i=1}^n2(\hat{y_i} - a\sqrt{x_i})\sqrt{x_i} = 0\\
+&\sum_{i=1}^n(\hat{y_i}\sqrt{x_i} - ax_i) = 0\\
+&\sum_{i=1}^n(\hat{y_i}\sqrt{x_i})=a\sum_{i=1}^nx_i\\
+&a = \frac{\displaystyle\sum_{i=1}^n(\hat{y_i}\sqrt{x_i})}{\displaystyle\sum_{i=1}^nx_i}
+\end{flalign}
+$$
+
+We got such an $a$ that the **MSE** has minimum or stationary point. Algorithm inside the project allows to calculate $a$ in $O(1)$ time every step.
