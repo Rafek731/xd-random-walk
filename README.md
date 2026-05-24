@@ -29,7 +29,7 @@ uv sync
 ```bash
 git clone https://github.com/Rafek731/xd-random-walk.git
 cd xd-random-walk
-python3 -m venv .venv
+python3 -m venv .venv      # On Windows use: python -m venv .venv
 source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
 pip install -e .
 ```
